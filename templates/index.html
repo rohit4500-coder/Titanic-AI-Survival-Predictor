@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TITANIC // SURVIVAL ANALYSIS SYSTEM</title>
+
+    <style>
+
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&family=Share+Tech+Mono&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+
+        body {
+            min-height: 100vh;
+            background: #050809;
+            color: #d9ffe9;
+            font-family: 'Share Tech Mono', monospace;
+            overflow-x: hidden;
+        }
+
+
+        /* BACKGROUND GRID */
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+
+            background-image:
+                linear-gradient(rgba(0, 255, 140, 0.035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 140, 0.035) 1px, transparent 1px);
+
+            background-size: 40px 40px;
+
+            pointer-events: none;
+            z-index: -2;
+        }
+
+
+        /* GLOW EFFECT */
+
+        body::after {
+            content: "";
+            position: fixed;
+            width: 500px;
+            height: 500px;
+
+            background: rgba(0, 255, 140, 0.06);
+
+            filter: blur(120px);
+
+            border-radius: 50%;
+
+            top: -200px;
+            right: -100px;
+
+            pointer-events: none;
+            z-index: -1;
+        }
+
+
+        .main-container {
+            max-width: 1250px;
+            margin: auto;
+            padding: 25px;
+        }
+
+
+        /* TOP STATUS BAR */
+
+        .top-bar {
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            padding: 12px 20px;
+
+            border: 1px solid rgba(0, 255, 140, 0.25);
+
+            background: rgba(0, 20, 15, 0.7);
+
+            margin-bottom: 25px;
+
+            font-size: 13px;
+
+            letter-spacing: 1px;
+        }
+
+
+        .system-status {
+            color: #00ff88;
+        }
+
+
+        .status-dot {
+
+            width: 8px;
+            height: 8px;
+
+            display: inline-block;
+
+            background: #00ff88;
+
+            border-radius: 50%;
+
+            margin-right: 8px;
+
+            box-shadow: 0 0 10px #00ff88;
+
+            animation: blink 1.5s infinite;
+        }
+
+
+        @keyframes blink {
+
+            0%, 100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+
+        }
+
+
+        /* HEADER */
+
+        .header {
+
+            border: 1px solid rgba(0, 255, 140, 0.3);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(0, 255, 140, 0.08),
+                    rgba(0, 0, 0, 0.7)
+                );
+
+            padding: 40px;
+
+            margin-bottom: 25px;
+
+            position: relative;
+
+            overflow: hidden;
+        }
+
+
+        .header::before {
+
+            content: "CLASSIFIED";
+
+            position: absolute;
+
+            right: 25px;
+            top: 20px;
+
+            color: rgba(0, 255, 140, 0.15);
+
+            font-size: 70px;
+
+            font-family: 'Orbitron', sans-serif;
+
+            transform: rotate(-15deg);
+        }
+
+
+        .header h1 {
+
+            font-family: 'Orbitron', sans-serif;
+
+            font-size: clamp(28px, 5vw, 52px);
+
+            color: #00ff88;
+
+            letter-spacing: 4px;
+
+            text-shadow:
+                0 0 10px rgba(0, 255, 136, 0.6),
+                0 0 30px rgba(0, 255, 136, 0.2);
+
+            margin-bottom: 15px;
+        }
+
+
+        .header p {
+
+            color: #8ba89a;
+
+            letter-spacing: 1px;
+
+            font-size: 15px;
+
+            max-width: 700px;
+
+            line-height: 1.7;
+        }
+
+
+        .classification {
+
+            margin-top: 20px;
+
+            display: flex;
+            gap: 15px;
+
+            flex-wrap: wrap;
+        }
+
+
+        .tag {
+
+            border: 1px solid #00ff88;
+
+            padding: 7px 12px;
+
+            color: #00ff88;
+
+            font-size: 12px;
+
+            background: rgba(0, 255, 136, 0.05);
+        }
+
+
+        /* DASHBOARD */
+
+        .dashboard {
+
+            display: grid;
+
+            grid-template-columns: 1fr 320px;
+
+            gap: 25px;
+        }
+
+
+        /* FORM PANEL */
+
+        .panel {
+
+            background: rgba(5, 15, 12, 0.85);
+
+            border: 1px solid rgba(0, 255, 140, 0.25);
+
+            position: relative;
+
+            padding: 30px;
+        }
+
+
+        .panel::before {
+
+            content: "";
+
+            position: absolute;
+
+            top: 0;
+            left: 0;
+
+            width: 70px;
+            height: 3px;
+
+            background: #00ff88;
+
+            box-shadow: 0 0 15px #00ff88;
+        }
+
+
+        .panel-title {
+
+            font-family: 'Orbitron', sans-serif;
+
+            color: #00ff88;
+
+            margin-bottom: 30px;
+
+            font-size: 18px;
+
+            letter-spacing: 2px;
+        }
+
+
+        .panel-title span {
+            color: #587064;
+        }
+
+
+        /* FORM GRID */
+
+        form {
+
+            display: grid;
+
+            grid-template-columns: repeat(2, 1fr);
+
+            gap: 22px;
+        }
+
+
+        .form-group {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 8px;
+        }
+
+
+        label {
+
+            color: #8fa99b;
+
+            font-size: 13px;
+
+            letter-spacing: 1px;
+        }
+
+
+        label span {
+
+            color: #00ff88;
+        }
+
+
+        input,
+        select {
+
+            width: 100%;
+
+            background: #07100d;
+
+            border: 1px solid #29483a;
+
+            color: #d9ffe9;
+
+            padding: 14px;
+
+            font-family: 'Share Tech Mono', monospace;
+
+            font-size: 15px;
+
+            outline: none;
+
+            transition: 0.25s;
+
+        }
+
+
+        input::placeholder {
+            color: #456054;
+        }
+
+
+        input:focus,
+        select:focus {
+
+            border-color: #00ff88;
+
+            box-shadow:
+                0 0 0 2px rgba(0, 255, 136, 0.08),
+                0 0 15px rgba(0, 255, 136, 0.12);
+        }
+
+
+        select option {
+
+            background: #07100d;
+
+            color: #d9ffe9;
+        }
+
+
+        .full-width {
+
+            grid-column: span 2;
+        }
+
+
+        /* BUTTON */
+
+        .predict-btn {
+
+            width: 100%;
+
+            padding: 17px;
+
+            border: 1px solid #00ff88;
+
+            background: #00ff88;
+
+            color: #02120a;
+
+            font-family: 'Orbitron', sans-serif;
+
+            font-weight: bold;
+
+            letter-spacing: 2px;
+
+            cursor: pointer;
+
+            transition: 0.3s;
+
+            position: relative;
+
+            overflow: hidden;
+        }
+
+
+        .predict-btn:hover {
+
+            background: transparent;
+
+            color: #00ff88;
+
+            box-shadow:
+                0 0 20px rgba(0, 255, 136, 0.25);
+        }
+
+
+        /* SIDE TERMINAL */
+
+        .terminal {
+
+            background: #030706;
+
+            border: 1px solid rgba(0, 255, 140, 0.25);
+
+            min-height: 500px;
+        }
+
+
+        .terminal-header {
+
+            background: #0a1511;
+
+            padding: 12px 15px;
+
+            border-bottom: 1px solid rgba(0, 255, 140, 0.15);
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 7px;
+        }
+
+
+        .terminal-dot {
+
+            width: 9px;
+            height: 9px;
+
+            border-radius: 50%;
+
+            background: #00ff88;
+        }
+
+
+        .terminal-title {
+
+            margin-left: 8px;
+
+            color: #718d7f;
+
+            font-size: 12px;
+        }
+
+
+        .terminal-body {
+
+            padding: 20px;
+
+            font-size: 13px;
+
+            line-height: 1.8;
+
+            color: #7f9c8d;
+        }
+
+
+        .terminal-body p {
+            margin-bottom: 10px;
+        }
+
+
+        .green {
+            color: #00ff88;
+        }
+
+
+        .yellow {
+            color: #e4d96f;
+        }
+
+
+        .cursor {
+
+            display: inline-block;
+
+            width: 8px;
+
+            height: 15px;
+
+            background: #00ff88;
+
+            vertical-align: middle;
+
+            animation: blink 1s infinite;
+        }
+
+
+        /* RESULT */
+
+        .result {
+
+            margin-top: 25px;
+
+            padding: 25px;
+
+            border: 1px solid #00ff88;
+
+            background: rgba(0, 255, 136, 0.05);
+
+            position: relative;
+
+            animation: resultAppear 0.5s ease;
+
+        }
+
+
+        @keyframes resultAppear {
+
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+        }
+
+
+        .result-title {
+
+            font-family: 'Orbitron', sans-serif;
+
+            color: #00ff88;
+
+            font-size: 13px;
+
+            letter-spacing: 2px;
+
+            margin-bottom: 12px;
+        }
+
+
+        .result-text {
+
+            color: white;
+
+            font-size: 18px;
+
+        }
+
+
+        /* FOOTER */
+
+        footer {
+
+            margin-top: 30px;
+
+            padding: 15px;
+
+            border-top: 1px solid rgba(0, 255, 140, 0.15);
+
+            color: #50675b;
+
+            text-align: center;
+
+            font-size: 12px;
+
+            letter-spacing: 1px;
+        }
+
+
+        /* RESPONSIVE */
+
+        @media (max-width: 900px) {
+
+            .dashboard {
+
+                grid-template-columns: 1fr;
+            }
+
+            .terminal {
+                min-height: auto;
+            }
+
+        }
+
+
+        @media (max-width: 600px) {
+
+            .main-container {
+                padding: 15px;
+            }
+
+            .header {
+                padding: 25px;
+            }
+
+            .panel {
+                padding: 20px;
+            }
+
+            form {
+                grid-template-columns: 1fr;
+            }
+
+            .full-width {
+                grid-column: span 1;
+            }
+
+            .top-bar {
+                font-size: 10px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="main-container">
+
+
+    <!-- SYSTEM STATUS -->
+
+    <div class="top-bar">
+
+        <div class="system-status">
+
+            <span class="status-dot"></span>
+
+            SYSTEM STATUS: ONLINE
+
+        </div>
+
+
+        <div>
+
+            SECURE CONNECTION // AES-256
+
+        </div>
+
+    </div>
+
+
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <h1>TITANIC // AI ANALYSIS</h1>
+
+        <p>
+
+            Advanced machine learning survival prediction system.
+            Enter passenger intelligence data to initiate Random Forest
+            predictive analysis.
+
+        </p>
+
+
+        <div class="classification">
+
+            <div class="tag">
+                ML MODEL: RANDOM FOREST
+            </div>
+
+            <div class="tag">
+                STATUS: ACTIVE
+            </div>
+
+            <div class="tag">
+                DATASET: TITANIC
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- DASHBOARD -->
+
+    <div class="dashboard">
+
+
+        <!-- INPUT PANEL -->
+
+        <div class="panel">
+
+            <div class="panel-title">
+
+                <span>[01]</span> PASSENGER DATA INPUT
+
+            </div>
+
+
+            <form action="/predict" method="POST">
+
+
+                <!-- PCLASS -->
+
+                <div class="form-group">
+
+                    <label>
+                        <span>01.</span> PASSENGER CLASS
+                    </label>
+
+                    <select name="Pclass" required>
+
+                        <option value="">
+                            SELECT CLASS
+                        </option>
+
+                        <option value="1">
+                            FIRST CLASS
+                        </option>
+
+                        <option value="2">
+                            SECOND CLASS
+                        </option>
+
+                        <option value="3">
+                            THIRD CLASS
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+
+                <!-- SEX -->
+
+                <div class="form-group">
+
+                    <label>
+                        <span>02.</span> GENDER
+                    </label>
+
+                    <select name="Sex" required>
+
+                        <option value="">
+                            SELECT GENDER
+                        </option>
+
+                        <option value="0">
+                            MALE
+                        </option>
+
+                        <option value="1">
+                            FEMALE
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+
+                <!-- AGE -->
+
+                <div class="form-group">
+
+                    <label>
+                        <span>03.</span> AGE
+                    </label>
+
+                    <input
+                        type="number"
+                        name="Age"
+                        placeholder="ENTER AGE"
+                        min="0"
+                        max="100"
+                        step="0.1"
+                        required
+                    >
+
+                </div>
+
+
+
+                <!-- SIBSP -->
+
+                <div class="form-group">
+
+                    <label>
+                        <span>04.</span> SIBLINGS / SPOUSE
+                    </label>
+
+                    <input
+                        type="number"
+                        name="SibSp"
+                        placeholder="NUMBER OF RELATIVES"
+                        min="0"
+                        required
+                    >
+
+                </div>
+
+
+
+                <!-- PARCH -->
+
+                <div class="form-group">
+
+                    <label>
+                        <span>05.</span> PARENTS / CHILDREN
+                    </label>
+
+                    <input
+                        type="number"
+                        name="Parch"
+                        placeholder="NUMBER OF RELATIVES"
+                        min="0"
+                        required
+                    >
+
+                </div>
+
+
+
+                <!-- FARE -->
+
+                <div class="form-group">
+
+                    <label>
+                        <span>06.</span> TICKET FARE
+                    </label>
+
+                    <input
+                        type="number"
+                        name="Fare"
+                        placeholder="ENTER TICKET FARE"
+                        min="0"
+                        step="0.01"
+                        required
+                    >
+
+                </div>
+
+
+
+                <!-- EMBARKED -->
+
+                <div class="form-group full-width">
+
+                    <label>
+                        <span>07.</span> EMBARKATION PORT
+                    </label>
+
+                    <select name="Embarked" required>
+
+                        <option value="">
+                            SELECT PORT
+                        </option>
+
+                        <option value="0">
+                            SOUTHAMPTON // S
+                        </option>
+
+                        <option value="1">
+                            CHERBOURG // C
+                        </option>
+
+                        <option value="2">
+                            QUEENSTOWN // Q
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+
+                <!-- BUTTON -->
+
+                <div class="full-width">
+
+                    <button type="submit" class="predict-btn">
+
+                        INITIATE SURVIVAL ANALYSIS
+
+                    </button>
+
+                </div>
+
+
+            </form>
+
+
+
+            <!-- RESULT -->
+
+            {% if prediction_text %}
+
+            <div class="result">
+
+                <div class="result-title">
+
+                    [ ANALYSIS COMPLETE ]
+
+                </div>
+
+                <div class="result-text">
+
+                    {{ prediction_text }}
+
+                </div>
+
+            </div>
+
+            {% endif %}
+
+
+        </div>
+
+
+
+        <!-- TERMINAL -->
+
+        <div class="terminal">
+
+            <div class="terminal-header">
+
+                <div class="terminal-dot"></div>
+                <div class="terminal-dot"></div>
+                <div class="terminal-dot"></div>
+
+                <div class="terminal-title">
+
+                    SYSTEM_TERMINAL.log
+
+                </div>
+
+            </div>
+
+
+            <div class="terminal-body">
+
+                <p>
+                    <span class="green">></span>
+                    INITIALIZING SYSTEM...
+                </p>
+
+                <p>
+                    <span class="green">></span>
+                    LOADING ML ENGINE...
+                </p>
+
+                <p>
+                    <span class="green">></span>
+                    RANDOM FOREST CLASSIFIER
+                </p>
+
+                <p>
+                    <span class="yellow">></span>
+                    MODEL STATUS: READY
+                </p>
+
+                <br>
+
+                <p>
+                    --------------------------------
+                </p>
+
+                <br>
+
+                <p>
+                    <span class="green">MODEL INFO</span>
+                </p>
+
+                <p>
+                    ALGORITHM:
+                    RANDOM FOREST
+                </p>
+
+                <p>
+                    TASK:
+                    CLASSIFICATION
+                </p>
+
+                <p>
+                    TARGET:
+                    SURVIVAL
+                </p>
+
+                <p>
+                    FEATURES:
+                    7
+                </p>
+
+                <br>
+
+                <p>
+                    --------------------------------
+                </p>
+
+                <br>
+
+                <p>
+                    WAITING FOR PASSENGER DATA...
+                </p>
+
+                <p>
+                    SYSTEM READY
+                    <span class="cursor"></span>
+                </p>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+    <footer>
+
+        TITANIC SURVIVAL PREDICTION SYSTEM |
+        MACHINE LEARNING PROJECT |
+        RANDOM FOREST CLASSIFIER
+
+    </footer>
+
+
+</div>
+
+
+</body>
+
+</html>
